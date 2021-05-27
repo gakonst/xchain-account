@@ -1,7 +1,7 @@
 pragma solidity 0.7.6;
 
 interface Messenger {
-    function sendMessage(address target, bytes memory data) external;
+    function sendMessage(address _target, bytes memory _message, uint32 _gasLimit) external;
     function xDomainMessageSender() external view returns (address);
 }
 

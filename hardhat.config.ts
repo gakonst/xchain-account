@@ -14,6 +14,10 @@ const config: HardhatUserConfig = {
   },
   networks: {
     optimism: {
+      accounts: {
+        mnemonic: "test test test test test test test test test test test junk"
+      },
+      gasPrice: 0,
       url: process.env.L2_URL || 'http://localhost:8545',
       ovm: true,
     },
