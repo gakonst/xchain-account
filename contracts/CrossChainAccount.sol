@@ -2,6 +2,14 @@ pragma solidity 0.7.6;
 
 interface Messenger {
     function sendMessage(address _target, bytes memory _message, uint32 _gasLimit) external;
+
+    function relayMessage(
+        address _target,
+        address _sender,
+        bytes memory _message,
+        uint256 _messageNonce
+    ) external;
+
     function xDomainMessageSender() external view returns (address);
 }
 
@@ -19,19 +27,9 @@ contract CrossChainAccount {
         l1Owner = _l1Owner;
     }
 
-    function send(address target, bytes memory data) external {
-        // 1. The call MUST come from the L1 Messenger
-        require(msg.sender == address(messenger), "Sender is not the messenger");
-        // 2. The L1 Messenger's caller MUST be the L1 Owner
-        require(messenger.xDomainMessageSender() == l1Owner, "L1Sender is not the L1Owner");
-        // 3. Make the external call
-        (bool success, bytes memory res) = target.call(data);
-        require(success, string(abi.encode("XChain call failed:", res)));
-    }
-
-    // Any L1Contract that wants to call an L2 contract will do:
-    // 1. Call the L1->L2 messenger with `target` = `address(L1Account)` and `data` =
-    // abi encoding of forward(target,data)
+    // `forward` `calls` the `target` with `data`, 
+    // can only be called by the `messenger`
+    // can only be called if `tx.l1MessageSender == l1Owner`
     function forward(address target, bytes memory data) external {
         // 1. The call MUST come from the L1 Messenger
         require(msg.sender == address(messenger), "Sender is not the messenger");

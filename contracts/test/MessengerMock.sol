@@ -15,4 +15,17 @@ contract MessengerMock {
         xDomainMessageSender = DEFAULT_XDOMAIN_SENDER;
         require(success, string(res));
     }
+
+
+    function relayMessage(
+        address _target,
+        address _sender,
+        bytes memory _message,
+        uint256
+    ) external {
+        xDomainMessageSender = _sender;
+        (bool success, bytes memory res) = _target.call(_message);
+        xDomainMessageSender = DEFAULT_XDOMAIN_SENDER;
+        require(success, string(res));
+    }
 }

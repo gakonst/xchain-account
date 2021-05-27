@@ -2,9 +2,8 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
 describe('CrossChainAccount', () => {
-  it("forwards messages to target contract", async () => {
+  it("forwards messages to target contract (unit test)", async () => {
     const [signer] = await ethers.getSigners()
-    const gasLimit = 9_000_000
     const greeting = "haha"
 
     // 1. Deploy the Messenger
@@ -20,21 +19,23 @@ describe('CrossChainAccount', () => {
       await ethers.getContractFactory("OwnedGreeter")
     ).deploy(l2acc.address)
 
+    const args = [
+      // This would be set to the L2 receiving contract address
+      greeter.address,
+      // This would be the ABI encoded function data we want to call
+      greeter.interface.encodeFunctionData("setGreeting", [greeting]),
+    ]
     const msg = l2acc.interface.encodeFunctionData(
       "forward",
-      [
-        greeter.address,
-        greeter.interface.encodeFunctionData("setGreeting", [greeting]),
-      ]
+      args,
     )
 
-    // 4. Send a msg to the messenger 
-    //  * messenger forwards it to the xchain acc
-    //  * xchain acc calls onlyOwner function
-    const tx = await messenger.sendMessage(
+    // 4. Relay the message (the sequencer has `enqeued` it on L1)
+    const tx = await messenger.relayMessage(
       l2acc.address,
+      await signer.getAddress(),
       msg,
-      gasLimit,
+      0,
     )
     await tx.wait()
 
