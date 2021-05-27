@@ -19,6 +19,8 @@
   "scripts": {
     "compile": "hardhat compile --network optimism",
     "test": "hardhat test --network optimism",
-    "deploy": "hardhat deploy"
+    "deploy": "hardhat deploy",
+    "optimism-up": "./scripts/run-optimism.sh",
+    "optimism-down": "cd optimism/ops && docker-compose down -v"
   }
 }
